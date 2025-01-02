@@ -1,5 +1,5 @@
-from Parsers import BaseParser
-import polars as pl # type: ignore
+import polars as pl
+from Parsers.base_parser import BaseParser
 
 class ExcelParser(BaseParser):
     def can_parse(self, file_path: str) -> bool:
