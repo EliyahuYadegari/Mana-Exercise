@@ -4,7 +4,7 @@ from Parsers.excel_parser import ExcelParser
 from Calculators.csv_calculator import CsvCalculator
 from Calculators.excel_calculator import ExcelCalculator
 import polars as pl
-import sqlite3
+import pandas as pd
 
 parsers = {
     "csv": CsvParser(),
@@ -63,5 +63,13 @@ def parse_file(file_path: str):
 
 
 if __name__ == "__main__":
-    file_path_csv = "samples/zeta_invalid.csv"
-    file_path_excel = "samples/tns_invalid.xlsx"
+    file_path_csv = "samples/zeta_valid.csv"
+    file_path_excel = "samples/tns_valid.xlsx"
+
+    # קריאה לקובץ CSV
+    # result_csv = parse_file(file_path_csv)
+    # print(f"Processed CSV file: {result_csv}")
+
+    # קריאה לקובץ Excel
+    result_excel = parse_file(file_path_excel)
+    print(f"Processed Excel file: {result_excel}")
