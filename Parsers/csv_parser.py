@@ -1,5 +1,5 @@
 import polars as pl
-from Parsers.base_parser import BaseParser
+from base_parser import BaseParser
 
 class CsvParser(BaseParser):
     def can_parse(self, file_path: str) -> bool:
