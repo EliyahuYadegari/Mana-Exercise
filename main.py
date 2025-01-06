@@ -3,8 +3,12 @@ from Parsers.csv_parser import CsvParser
 from Parsers.excel_parser import ExcelParser
 from Calculators.csv_calculator import CsvCalculator
 from Calculators.excel_calculator import ExcelCalculator
+from database import Database
 import polars as pl
 import pandas as pd
+
+db = Database()
+db.create_table()
 
 parsers = {
     "csv": CsvParser(),
@@ -33,43 +37,17 @@ def parse_file(file_path: str):
     
     return result
 
-
-# def save_to_database(valid_data: pl.DataFrame, db_name: str = "data.db"):
-
-#     # connect to database and if the file not exist - create it
-#     conn = sqlite3.connect(db_name)
-#     cursor = conn.cursor()
-
-#     # create a table for valid Zeta Potential data
-#     cursor.execute("""
-#         CREATE TABLE IF NOT EXISTS ZetaResults (
-#             id INTEGER PRIMARY KEY AUTOINCREMENT,
-#             sample_name TEXT,
-#             measurement_type TEXT,
-#             zeta_potential REAL,
-#             normalized_value REAL
-#         )
-#     """)
-    
-#     # Insert valid data into the table
-#     for row in valid_data.iter_rows(named=True):
-#         cursor.execute("""
-#             INSERT INTO ZetaResults (sample_name, measurement_type, zeta_potential, normalized_value)
-#             VALUES (?, ?, ?, ?)
-#         """, (row["Sample Name"], row["Measurement Type"], row["Zeta Potential (mV)"], row["normalized_value"]))
-    
-#     conn.commit()
-#     conn.close()
-
+def save_to_database(results_df):
+    db.store_results(results_df)
 
 if __name__ == "__main__":
+    
     file_path_csv = "samples/zeta_valid.csv"
-    file_path_excel = "samples/tns_valid.xlsx"
-
-    # קריאה לקובץ CSV
     result_csv = parse_file(file_path_csv)
     print(f"Processed CSV file: {result_csv}")
+    save_to_database(pd.DataFrame(result_csv))
 
-    # קריאה לקובץ Excel
+    file_path_excel = "samples/tns_valid.xlsx"
     result_excel = parse_file(file_path_excel)
     print(f"Processed Excel file: {result_excel}")
+    save_to_database(result_excel)
