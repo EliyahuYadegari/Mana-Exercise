@@ -67,8 +67,8 @@ if __name__ == "__main__":
     file_path_excel = "samples/tns_valid.xlsx"
 
     # קריאה לקובץ CSV
-    # result_csv = parse_file(file_path_csv)
-    # print(f"Processed CSV file: {result_csv}")
+    result_csv = parse_file(file_path_csv)
+    print(f"Processed CSV file: {result_csv}")
 
     # קריאה לקובץ Excel
     result_excel = parse_file(file_path_excel)
