@@ -5,7 +5,7 @@ from calculators.csv_calculator import CsvCalculator
 from calculators.excel_calculator import ExcelCalculator
 from database import Database
 # import polars as pl
-import pandas as pd
+import pandas as pd # type: ignore
 
 db = Database()
 db.create_table()

@@ -1,4 +1,4 @@
-import polars as pl
+import pandas as pd # type: ignore
 from parsers.parser_interface import BaseParser
 
 class ExcelParser(BaseParser):
@@ -6,4 +6,4 @@ class ExcelParser(BaseParser):
         return file_path.endswith('.xlsx')
 
     def parse(self, file_path: str):
-        return pl.read_excel(file_path)
+        return pd.read_excel(file_path)
