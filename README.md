@@ -6,6 +6,7 @@ CLI utility for processing laboratory instrument data files for TNS and Zeta Pot
 - Python 3.8 or higher  
 - UV dependency management  
 - SQLite3
+- Streamlit
 
 ## Installation
 
