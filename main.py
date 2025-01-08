@@ -40,14 +40,14 @@ def parse_file(file_path: str):
 def save_to_database(results_df):
     db.store_results(results_df)
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
     
-    file_path_csv = "samples/zeta_valid.csv"
-    result_csv = parse_file(file_path_csv)
-    print(f"Processed CSV file: {result_csv}")
-    save_to_database(pd.DataFrame(result_csv))
+#     file_path_csv = "samples/zeta_valid.csv"
+#     result_csv = parse_file(file_path_csv)
+#     print(f"Processed CSV file: {result_csv}")
+#     save_to_database(pd.DataFrame(result_csv))
 
-    file_path_excel = "samples/tns_valid.xlsx"
-    result_excel = parse_file(file_path_excel)
-    print(f"Processed Excel file: {result_excel}")
-    save_to_database(result_excel)
+#     file_path_excel = "samples/tns_valid.xlsx"
+#     result_excel = parse_file(file_path_excel)
+#     print(f"Processed Excel file: {result_excel}")
+#     save_to_database(result_excel)

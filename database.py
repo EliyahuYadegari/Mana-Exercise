@@ -1,5 +1,5 @@
 import sqlite3
-import pandas as pd
+import pandas as pd # type: ignore
 
 class Database:
     def __init__(self, db_name="results.db"):
@@ -23,3 +23,11 @@ class Database:
         conn = sqlite3.connect(self.db_name)
         results_df.to_sql('data_table', conn, if_exists='replace', index=False)
         conn.close()
+
+    def fetch_all_data(self):
+        conn = sqlite3.connect(self.db_name)
+        query = "SELECT * FROM data_table"
+        df = pd.read_sql_query(query, conn)
+        conn.close()
+        return df
+
