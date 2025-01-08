@@ -1,10 +1,10 @@
 import os
-from Parsers.csv_parser import CsvParser
-from Parsers.excel_parser import ExcelParser
-from Calculators.csv_calculator import CsvCalculator
-from Calculators.excel_calculator import ExcelCalculator
+from parsers.csv_parser import CsvParser
+from parsers.excel_parser import ExcelParser
+from calculators.csv_calculator import CsvCalculator
+from calculators.excel_calculator import ExcelCalculator
 from database import Database
-import polars as pl
+# import polars as pl
 import pandas as pd
 
 db = Database()
