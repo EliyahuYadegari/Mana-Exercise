@@ -12,8 +12,14 @@ class CsvCalculator:
 
         unique_formulations = formulations["Sample Name"].unique()
         for formulation_name in unique_formulations:
-            formulation_data = data.filter(pl.col("Sample Name") == formulation_name)
+            formulation_data = formulations.filter(pl.col("Sample Name") == formulation_name)
+            
+            formulation_data = formulation_data.with_columns([
+                pl.col("Zeta Potential (mV)").mean().over(pl.col("Sample Name"))
+            ])
+            
             avg_reading = formulation_data["Zeta Potential (mV)"].mean()
+
             normalized_value = avg_reading / std_avg
 
             if normalized_value > 0:
