@@ -25,7 +25,9 @@ python scripts/init_db.py
 ```
 
 ## Usage
-
+```bash
+streamlit run app.py
+```
 
 
 ## File Requirements
