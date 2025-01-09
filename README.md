@@ -20,11 +20,6 @@ pip install uv
 uv sync
 ```
 
-### Database Setup
-```bash
-python scripts/init_db.py
-```
-
 ## Usage
 ```bash
 streamlit run app.py
