@@ -34,7 +34,8 @@ def parse_and_calculate(file_path: str, uuid_str)-> pd.DataFrame:
     data = parser.parse(file_path)
     st.write("---parser work---")
     calculator = calculators[file_extension]
-    st.write(data)
+    if st.button("Show file"):
+        st.write(data)
     result = calculator.calculate(data, uuid_str)
     st.write("---calculator work---")
     return result

@@ -1,6 +1,4 @@
 import pandas as pd  # type: ignore
-import streamlit as st  # type: ignore
-
 
 class CsvCalculator:
     def calculate(self, data: pd.DataFrame, uuid_str):

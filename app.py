@@ -5,7 +5,6 @@ from database import Database
 import pandas as pd  # type: ignore
 import os
 
-# פונקציה לסטטיסטיקה של תוצאות תקינות ולא תקינות
 def statistics_value(numeric_cols, result):
     if not numeric_cols.empty:
         st.write(f"- **Median**: \n{numeric_cols.median()}")
@@ -53,7 +52,8 @@ if uploaded_file is not None:
         
         if isinstance(result, pd.DataFrame):
             st.success("✅ File processed successfully!")
-            st.dataframe(result)
+            if st.button("Show file results"):
+                st.dataframe(result)
 
             st.write("### 📈 File Statistics")
             numeric_cols = result.select_dtypes(include=["number"])
