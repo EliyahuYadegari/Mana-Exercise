@@ -1,23 +1,20 @@
-import polars as pl
-import pandas as pd
+import pandas as pd  # type: ignore
+import streamlit as st  # type: ignore
+
 
 class CsvCalculator:
-    def calculate(self, data: pl.DataFrame):
-        std_data = data.filter(pl.col("Sample Name").str.contains("STD"))
+    def calculate(self, data: pd.DataFrame, uuid_str):
+        std_data = data[data["Sample Name"].str.contains("STD", na=False)]
         std_avg = std_data["Zeta Potential (mV)"].mean()
 
-        formulations = data.filter(pl.col("Sample Name").str.contains("FORMULATION"))
+        formulations = data[data["Sample Name"].str.contains("FORMULATION", na=False)]
 
         results = []
 
         unique_formulations = formulations["Sample Name"].unique()
         for formulation_name in unique_formulations:
-            formulation_data = formulations.filter(pl.col("Sample Name") == formulation_name)
-            
-            formulation_data = formulation_data.with_columns([
-                pl.col("Zeta Potential (mV)").mean().over(pl.col("Sample Name"))
-            ])
-            
+            formulation_data = formulations[formulations["Sample Name"] == formulation_name]
+
             avg_reading = formulation_data["Zeta Potential (mV)"].mean()
 
             normalized_value = avg_reading / std_avg
@@ -26,9 +23,17 @@ class CsvCalculator:
                 results.append({
                     "Sample Name": formulation_name,
                     "Zeta Potential (mV)": avg_reading,
-                    "Normalized Value": normalized_value
+                    "Normalized Value": normalized_value,
+                    "Experiment_ID": uuid_str,
+                    "Experiment_type": "Zeta_potentiol"
                 })
             else:
-                raise ValueError(f"Invalid Zeta potential value for {formulation_name}.")
+                results.append({
+                    "Sample Name": formulation_name,
+                    "Zeta Potential (mV)": None,
+                    "Normalized Value": None,
+                    "Experiment_ID": uuid_str,
+                    "Experiment_type": "Zeta_potentiol"
+                })
 
         return pd.DataFrame(results)

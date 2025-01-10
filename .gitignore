@@ -1,1 +1,6 @@
 results.db
+.venv
+__pycache__
+*.pyc
+db
+.vscode

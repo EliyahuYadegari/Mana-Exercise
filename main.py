@@ -1,11 +1,12 @@
-import os
 from parsers.csv_parser import CsvParser
 from parsers.excel_parser import ExcelParser
 from calculators.csv_calculator import CsvCalculator
 from calculators.excel_calculator import ExcelCalculator
 from database import Database
-# import polars as pl
 import pandas as pd # type: ignore
+import streamlit as st  # type: ignore
+# import uuid
+
 
 db = Database()
 db.create_table()
@@ -20,7 +21,7 @@ calculators = {
     "xlsx": ExcelCalculator(),
 }
 
-def parse_file(file_path: str):
+def parse_and_calculate(file_path: str, uuid_str)-> pd.DataFrame:
     file_extension = file_path.split('.')[-1]
     if file_extension not in parsers:
         raise ValueError(f"Unsupported file type: {file_extension}")
@@ -31,10 +32,11 @@ def parse_file(file_path: str):
         raise ValueError(f"Parser cannot handle file: {file_path}")
     
     data = parser.parse(file_path)
-    
+    st.write("---parser work---")
     calculator = calculators[file_extension]
-    result = calculator.calculate(data)
-    
+    st.write(data)
+    result = calculator.calculate(data, uuid_str)
+    st.write("---calculator work---")
     return result
 
 def save_to_database(results_df):
