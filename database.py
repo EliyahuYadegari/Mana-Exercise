@@ -1,5 +1,7 @@
 import sqlite3
 import pandas as pd # type: ignore
+import streamlit as st  # type: ignore
+
 
 class Database:
     def __init__(self, db_name="results.db"):
@@ -11,18 +13,28 @@ class Database:
 
         cursor.execute('''CREATE TABLE IF NOT EXISTS data_table (
                             "Sample Name" TEXT,
-                            "Zeta Potential (mV)" REAL,
-                            "Normalized Value" REAL
+                            "Result" REAL,
+                            "Experiment_ID" TEXT,
+                            "Experiment_type" TEXT
                         )''')
-
         conn.commit()
         conn.close()
 
     def store_results(self, results_df):
-        
+        if results_df.empty:
+            st.warning("No data to store.")
+            return
+
         conn = sqlite3.connect(self.db_name)
-        results_df.to_sql('data_table', conn, if_exists='replace', index=False)
+        
+        st.write("---זה מופיע---")
+
+        results_df.to_sql('data_table', conn, if_exists='append', index=False)
+
+        st.write("---זה לא מופיע---")
         conn.close()
+
+
 
     def fetch_all_data(self):
         conn = sqlite3.connect(self.db_name)

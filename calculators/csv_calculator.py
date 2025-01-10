@@ -22,16 +22,14 @@ class CsvCalculator:
             if normalized_value > 0:
                 results.append({
                     "Sample Name": formulation_name,
-                    "Zeta Potential (mV)": avg_reading,
-                    "Normalized Value": normalized_value,
+                    "Result": normalized_value,
                     "Experiment_ID": uuid_str,
                     "Experiment_type": "Zeta_potentiol"
                 })
             else:
                 results.append({
                     "Sample Name": formulation_name,
-                    "Zeta Potential (mV)": None,
-                    "Normalized Value": None,
+                    "Result": None,
                     "Experiment_ID": uuid_str,
                     "Experiment_type": "Zeta_potentiol"
                 })
