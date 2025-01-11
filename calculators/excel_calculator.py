@@ -56,7 +56,7 @@ class ExcelCalculator:
                 else:
                     results.append({
                         "Sample Name": f"Formulation {formulation_count}",
-                        "Result": None,
+                        "Result": -1,
                         "Experiment_ID": uuid_str,
                         "Experiment_type": "TNS"
                     })

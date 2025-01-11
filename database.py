@@ -20,6 +20,7 @@ class Database:
         conn.commit()
         conn.close()
 
+
     def store_results(self, results_df):
         if results_df.empty:
             st.warning("No data to store.")
@@ -27,11 +28,14 @@ class Database:
 
         conn = sqlite3.connect(self.db_name)
         
-        st.write("---זה מופיע---")
+        st.write("---עד כאן מופיע---")
+
+        st.dataframe(results_df)
 
         results_df.to_sql('data_table', conn, if_exists='append', index=False)
 
-        st.write("---זה לא מופיע---")
+        st.write("---זה כבר לא מופיע---")
+
         conn.close()
 
 

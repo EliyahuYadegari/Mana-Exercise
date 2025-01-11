@@ -1,6 +1,6 @@
 import streamlit as st  # type: ignore
 import uuid
-from main import parse_and_calculate, save_to_database
+from main import parse_and_calculate
 from database import Database
 import pandas as pd  # type: ignore
 import os
@@ -23,6 +23,7 @@ def statistics_value(numeric_cols, result):
     st.write(f"❌ **Invalid experiments**: {invalid_experiments} ({invalid_percentage:.2f}%)")
 
 db = Database()
+db.create_table()
 
 st.set_page_config(page_title="Lab Results Analyzer", layout="wide")
 st.title("📊 Laboratory Results Management")
@@ -59,7 +60,8 @@ if uploaded_file is not None:
             numeric_cols = result.select_dtypes(include=["number"])
             statistics_value(numeric_cols, result)
 
-            save_to_database(result)
+            db.store_results(result)
+
             st.success("📥 Results saved to the database.")
             
         else:

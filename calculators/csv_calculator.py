@@ -22,14 +22,14 @@ class CsvCalculator:
                     "Sample Name": formulation_name,
                     "Result": normalized_value,
                     "Experiment_ID": uuid_str,
-                    "Experiment_type": "Zeta_potentiol"
+                    "Experiment_type": "Zeta_potential"
                 })
             else:
                 results.append({
                     "Sample Name": formulation_name,
-                    "Result": None,
+                    "Result": -1,
                     "Experiment_ID": uuid_str,
-                    "Experiment_type": "Zeta_potentiol"
+                    "Experiment_type": "Zeta_potential"
                 })
 
         return pd.DataFrame(results)

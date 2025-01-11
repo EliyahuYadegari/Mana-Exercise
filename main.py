@@ -8,8 +8,8 @@ import streamlit as st  # type: ignore
 # import uuid
 
 
-db = Database()
-db.create_table()
+# db = Database()
+
 
 parsers = {
     "csv": CsvParser(),
@@ -40,8 +40,7 @@ def parse_and_calculate(file_path: str, uuid_str)-> pd.DataFrame:
     st.write("---calculator work---")
     return result
 
-def save_to_database(results_df):
-    db.store_results(results_df)
+    
 
 # if __name__ == "__main__":
     
