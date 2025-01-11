@@ -1,7 +1,9 @@
 import pandas as pd  # type: ignore
+from interface import ExpirementResult
+from typing import List
 
 class ExcelCalculator:
-    def calculate(self, data: pd.DataFrame, uuid_str):
+    def calculate(self, data: pd.DataFrame, uuid_str) -> List[ExpirementResult]:
 
         print("Loaded data:", data)
 
@@ -47,19 +49,16 @@ class ExcelCalculator:
                 normalized_result = triplet_average / control_average
 
                 if normalized_result > 10:
-                    results.append({
-                        "Sample Name": f"Formulation {formulation_count}",
-                        "Result": normalized_result,
-                        "Experiment_ID": uuid_str,
-                        "Experiment_type": "TNS"
-                    })
+                    results.append(ExpirementResult(sample_name=f"Formulation {formulation_count}",
+                                                result=normalized_result,
+                                                experiment_id=uuid_str,
+                                                experiment_type="TNS"))
                 else:
-                    results.append({
-                        "Sample Name": f"Formulation {formulation_count}",
-                        "Result": -1,
-                        "Experiment_ID": uuid_str,
-                        "Experiment_type": "TNS"
-                    })
+                    results.append(ExpirementResult(sample_name=f"Formulation {formulation_count}",
+                                                result=None,
+                                                experiment_id=uuid_str,
+                                                experiment_type="TNS"))
+                                
 
                 triplet_start += 3
                 formulation_count += 1
@@ -67,4 +66,4 @@ class ExcelCalculator:
         if not results:
             raise ValueError("No valid results were calculated.")
 
-        return pd.DataFrame(results)
+        return results

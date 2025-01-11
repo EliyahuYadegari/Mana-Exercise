@@ -1,10 +1,10 @@
 import sys
 import os
-import pytest
+import pytest # type: ignore
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from Parsers.csv_parser import CsvParser
-from Parsers.excel_parser import ExcelParser
+from parsers.csv_parser import CsvParser
+from parsers.excel_parser import ExcelParser
 
 test_cases = [
     (CsvParser, "samples/zeta_valid.csv"),

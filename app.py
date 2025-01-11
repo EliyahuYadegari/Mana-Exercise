@@ -4,6 +4,8 @@ from main import parse_and_calculate
 from database import Database
 import pandas as pd  # type: ignore
 import os
+from interface import ExpirementResult
+
 
 def statistics_value(numeric_cols, result):
     if not numeric_cols.empty:
@@ -12,8 +14,7 @@ def statistics_value(numeric_cols, result):
         st.write(f"- **Standard Deviation**: \n{numeric_cols.std()}")
     else:
         st.warning("No numeric columns found for statistics computation.")
-    
-    valid_experiments = result["Result"].notna().sum()
+    valid_experiments = result["result"].notna().sum()
     total_experiments = len(result)
     invalid_experiments = total_experiments - valid_experiments
 
@@ -23,7 +24,8 @@ def statistics_value(numeric_cols, result):
     st.write(f"❌ **Invalid experiments**: {invalid_experiments} ({invalid_percentage:.2f}%)")
 
 db = Database()
-db.create_table()
+# db.create_table()
+db.create_table_from_pydantic(ExpirementResult)
 
 st.set_page_config(page_title="Lab Results Analyzer", layout="wide")
 st.title("📊 Laboratory Results Management")
@@ -50,14 +52,18 @@ if uploaded_file is not None:
 
     try:
         result = parse_and_calculate(temp_path, uuid_str)
+        st.write(result)
         
         if isinstance(result, pd.DataFrame):
+            
             st.success("✅ File processed successfully!")
             if st.button("Show file results"):
                 st.dataframe(result)
 
             st.write("### 📈 File Statistics")
             numeric_cols = result.select_dtypes(include=["number"])
+            
+
             statistics_value(numeric_cols, result)
 
             db.store_results(result)

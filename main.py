@@ -38,7 +38,8 @@ def parse_and_calculate(file_path: str, uuid_str)-> pd.DataFrame:
         st.write(data)
     result = calculator.calculate(data, uuid_str)
     st.write("---calculator work---")
-    return result
+    df = pd.DataFrame([item.dict() for item in result])
+    return df
 
     
 
