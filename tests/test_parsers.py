@@ -1,33 +1,37 @@
-import sys
-import os
-import pytest # type: ignore
+import pytest
+from src.parsers import CsvParser, ExcelParser
+import pandas as pd
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from parsers.csv_parser import CsvParser
-from parsers.excel_parser import ExcelParser
+def test_csv_parser_can_parse():
+    csv_parser = CsvParser()
+    result = csv_parser.can_parse("test.csv")
+    assert result == True
 
-test_cases = [
-    (CsvParser, "samples/zeta_valid.csv"),
-    (ExcelParser, "samples/tns_valid.xlsx"),
-]
+def test_csv_parser_cannot_parse():
+    csv_parser = CsvParser()
+    result = csv_parser.can_parse("test.xlsx")
+    assert result == False
 
-@pytest.mark.parametrize("parser_class, file_path", test_cases)
-def test_file_exists(parser_class, file_path):
-    assert os.path.exists(file_path), f"File does not exist: {file_path}"
+def test_excel_parser_can_parse():
+    excel_parser = ExcelParser()
+    result = excel_parser.can_parse("test.xlsx")
+    assert result == True
 
-@pytest.mark.parametrize("parser_class, file_path", test_cases)
-def test_parser_can_handle_file_type(parser_class, file_path):
-    parser = parser_class()
-    assert parser.can_parse(file_path), f"{parser_class.__name__} cannot handle this file type"
+def test_excel_parser_cannot_parse():
+    excel_parser = ExcelParser()
+    result = excel_parser.can_parse("test.csv")
+    assert result == False
 
-@pytest.mark.parametrize("parser_class, file_path", test_cases)
-def test_parser_returns_data(parser_class, file_path):
-    parser = parser_class()
-    data = parser.parse(file_path)
-    assert data is not None, f"Parsed data by {parser_class.__name__} is None"
+def test_csv_parser_parse():
+    csv_parser = CsvParser()
+    test_data = pd.DataFrame({"A": [1, 2], "B": [3, 4]})
+    test_data.to_csv("test.csv", index=False)
+    result = csv_parser.parse("test.csv")
+    assert result.shape == (2, 2) 
 
-@pytest.mark.parametrize("parser_class, file_path", test_cases)
-def test_parsed_data_not_empty(parser_class, file_path):
-    parser = parser_class()
-    data = parser.parse(file_path)
-    assert len(data) > 0, f"Parsed data by {parser_class.__name__} is empty"
+def test_excel_parser_parse():
+    excel_parser = ExcelParser()
+    test_data = pd.DataFrame({"A": [1, 2], "B": [3, 4]})
+    test_data.to_excel("test.xlsx", index=False)
+    result = excel_parser.parse("test.xlsx")
+    assert result.shape == (2, 2) 

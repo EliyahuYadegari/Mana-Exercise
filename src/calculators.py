@@ -6,12 +6,12 @@ ZETA_VALIDATION = 0
 TNS_VALIDATION = 10
 
 class BaseCalculator:
-    def calculate(self, data: pd.DataFrame, uuid_str) -> List[ExpirementResult]:
+    def calculate(self, data: pd.DataFrame, uuid: str) -> List[ExpirementResult]:
         raise NotImplementedError("Subclasses must implement this method.")
     
     
 class CsvCalculator(BaseCalculator):
-    def calculate(self, data: pd.DataFrame, uuid_str) -> List[ExpirementResult]:
+    def calculate(self, data: pd.DataFrame, uuid: str) -> List[ExpirementResult]:
         std_data = data[data["Sample Name"].str.contains("STD", na=False)]
         std_avg = std_data["Zeta Potential (mV)"].mean()
 
@@ -31,18 +31,18 @@ class CsvCalculator(BaseCalculator):
             if normalized_value > ZETA_VALIDATION:
                 results.append(ExpirementResult(sample_name=formulation_name,
                                                 result=normalized_value,
-                                                experiment_id=uuid_str,
+                                                experiment_id=uuid,
                                                 experiment_type="Zeta_potential"))
             else:
                 results.append(ExpirementResult(sample_name=formulation_name,
                                                 result=None,
-                                                experiment_id=uuid_str,
+                                                experiment_id=uuid,
                                                 experiment_type="Zeta_potential"))
 
         return results
 
 class ExcelCalculator(BaseCalculator):
-    def calculate(self, data: pd.DataFrame, uuid_str) -> List[ExpirementResult]:
+    def calculate(self, data: pd.DataFrame, uuid: str) -> List[ExpirementResult]:
 
         if data.empty:
             raise ValueError("The Excel file is empty.")
@@ -70,7 +70,7 @@ class ExcelCalculator(BaseCalculator):
 
         for _, row in data.iterrows():
             triplet_start = 0
-            while triplet_start + 3 <= len(formulation_columns):  # חלוקה לשלשות
+            while triplet_start + 3 <= len(formulation_columns):
                 triplet_columns = formulation_columns[triplet_start:triplet_start + 3]
 
                 triplet_average = row[triplet_columns].mean()
@@ -84,12 +84,12 @@ class ExcelCalculator(BaseCalculator):
                 if normalized_result > TNS_VALIDATION:
                     results.append(ExpirementResult(sample_name=f"Formulation {formulation_count}",
                                                 result=normalized_result,
-                                                experiment_id=uuid_str,
+                                                experiment_id=uuid,
                                                 experiment_type="TNS"))
                 else:
                     results.append(ExpirementResult(sample_name=f"Formulation {formulation_count}",
                                                 result=None,
-                                                experiment_id=uuid_str,
+                                                experiment_id=uuid,
                                                 experiment_type="TNS"))
                                 
 
