@@ -91,7 +91,6 @@ def main():
                 numeric_cols = result.select_dtypes(include=["number"])
                 statistics_value(numeric_cols, result)
 
-                # Save the results for every uploaded file
                 db.store_results(result)
                 st.success("📥 Results saved to the database.")
 
@@ -132,6 +131,4 @@ def main():
             st.error(f"⚠️ Failed to load data from the database: {e}")
 
 if __name__ == "__main__":
-    if not os.path.exists('results.db'):
-        call(['python', 'scripts/init_db.py'])
     main()
