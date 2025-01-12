@@ -1,9 +1,9 @@
 import pandas as pd  # type: ignore
-import streamlit as st  # type: ignore
-
+from interface import ExpirementResult
+from typing import List
 
 class CsvCalculator:
-    def calculate(self, data: pd.DataFrame, uuid_str):
+    def calculate(self, data: pd.DataFrame, uuid_str) -> List[ExpirementResult]:
         std_data = data[data["Sample Name"].str.contains("STD", na=False)]
         std_avg = std_data["Zeta Potential (mV)"].mean()
 
@@ -18,20 +18,17 @@ class CsvCalculator:
             avg_reading = formulation_data["Zeta Potential (mV)"].mean()
 
             normalized_value = avg_reading / std_avg
+            
 
             if normalized_value > 0:
-                results.append({
-                    "Sample Name": formulation_name,
-                    "Result": normalized_value,
-                    "Experiment_ID": uuid_str,
-                    "Experiment_type": "Zeta_potentiol"
-                })
+                results.append(ExpirementResult(sample_name=formulation_name,
+                                                result=normalized_value,
+                                                experiment_id=uuid_str,
+                                                experiment_type="Zeta_potential"))
             else:
-                results.append({
-                    "Sample Name": formulation_name,
-                    "Result": None,
-                    "Experiment_ID": uuid_str,
-                    "Experiment_type": "Zeta_potentiol"
-                })
+                results.append(ExpirementResult(sample_name=formulation_name,
+                                                result=None,
+                                                experiment_id=uuid_str,
+                                                experiment_type="Zeta_potential"))
 
-        return pd.DataFrame(results)
+        return results

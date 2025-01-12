@@ -8,8 +8,8 @@ import streamlit as st  # type: ignore
 # import uuid
 
 
-db = Database()
-db.create_table()
+# db = Database()
+
 
 parsers = {
     "csv": CsvParser(),
@@ -32,15 +32,14 @@ def parse_and_calculate(file_path: str, uuid_str)-> pd.DataFrame:
         raise ValueError(f"Parser cannot handle file: {file_path}")
     
     data = parser.parse(file_path)
-    st.write("---parser work---")
     calculator = calculators[file_extension]
-    st.write(data)
+    if st.button("Show file"):
+        st.write(data)
     result = calculator.calculate(data, uuid_str)
-    st.write("---calculator work---")
-    return result
+    df = pd.DataFrame([item.dict() for item in result])
+    return df
 
-def save_to_database(results_df):
-    db.store_results(results_df)
+    
 
 # if __name__ == "__main__":
     

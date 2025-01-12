@@ -1,11 +1,12 @@
-import streamlit as st  # type: ignore
+import streamlit as st
 import uuid
-from main import parse_and_calculate, save_to_database
+from main import parse_and_calculate
 from database import Database
-import pandas as pd  # type: ignore
+import pandas as pd
 import os
+from interface import ExpirementResult
 
-# פונקציה לסטטיסטיקה של תוצאות תקינות ולא תקינות
+
 def statistics_value(numeric_cols, result):
     if not numeric_cols.empty:
         st.write(f"- **Median**: \n{numeric_cols.median()}")
@@ -13,8 +14,7 @@ def statistics_value(numeric_cols, result):
         st.write(f"- **Standard Deviation**: \n{numeric_cols.std()}")
     else:
         st.warning("No numeric columns found for statistics computation.")
-    
-    valid_experiments = result["Result"].notna().sum()
+    valid_experiments = result["result"].notna().sum()
     total_experiments = len(result)
     invalid_experiments = total_experiments - valid_experiments
 
@@ -24,6 +24,8 @@ def statistics_value(numeric_cols, result):
     st.write(f"❌ **Invalid experiments**: {invalid_experiments} ({invalid_percentage:.2f}%)")
 
 db = Database()
+# db.create_table()
+db.create_table_from_pydantic(ExpirementResult)
 
 st.set_page_config(page_title="Lab Results Analyzer", layout="wide")
 st.title("📊 Laboratory Results Management")
@@ -41,6 +43,9 @@ uploaded_file = st.file_uploader(
     help="Upload experiment results from TNS or Zeta Potential experiments",
 )
 
+if "data_saved" not in st.session_state:
+    st.session_state["data_saved"] = False
+
 if uploaded_file is not None:
     uuid_str = uuid.uuid4()
     temp_path = f"temp_{uuid_str}_{uploaded_file.name}"
@@ -50,18 +55,24 @@ if uploaded_file is not None:
 
     try:
         result = parse_and_calculate(temp_path, uuid_str)
-        
+
         if isinstance(result, pd.DataFrame):
             st.success("✅ File processed successfully!")
-            st.dataframe(result)
+            if st.button("Show file results"):
+                st.dataframe(result)
 
             st.write("### 📈 File Statistics")
             numeric_cols = result.select_dtypes(include=["number"])
             statistics_value(numeric_cols, result)
 
-            save_to_database(result)
-            st.success("📥 Results saved to the database.")
-            
+            # Save to database only if not already saved
+            if not st.session_state["data_saved"]:
+                db.store_results(result)
+                st.session_state["data_saved"] = True
+                st.success("📥 Results saved to the database.")
+            else:
+                st.info("📥 Results saved to the database.")
+
         else:
             st.error("❌ Error: The processed result is not a valid DataFrame.")
 
@@ -80,36 +91,20 @@ if uploaded_file is not None:
         if data_df.empty:
             st.info("🔍 The database is currently empty.")
         else:
-            experiment_types = data_df["Experiment_type"].unique()
+            experiment_types = data_df["experiment_type"].unique()
             selected_type = st.selectbox("Select Experiment Type", ["All"] + list(experiment_types))
 
             if selected_type != "All":
-                data_df = data_df[data_df["Experiment_type"] == selected_type]
+                data_df = data_df[data_df["experiment_type"] == selected_type]
 
             st.dataframe(data_df)
-            st.write("### Summary Statistics")
-            st.write(data_df.describe())
 
             st.write("### 📈 Overall Statistics")
-            numeric_cols = result.select_dtypes(include=["number"])
-            statistics_value(numeric_cols, result)
+            data_df["result"] = pd.to_numeric(data_df["result"], errors="coerce")
+            numeric_cols = data_df[["result"]].dropna()
+            numeric_cols.select_dtypes(include=["number"])
+            statistics_value(numeric_cols, data_df)
 
     except Exception as e:
         st.error(f"⚠️ Failed to load data from the database: {e}")
 
-
-
-    # st.header("📂 View Stored Results")
-
-    # try:
-    #     data_df = db.fetch_all_data()
-
-    #     if data_df.empty:
-    #         st.info("🔍 The database is currently empty.")
-    #     else:
-    #         st.dataframe(data_df)
-    #         st.write("### Summary Statistics")
-    #         st.write(data_df.describe())
-
-    # except Exception as e:
-    #     st.error(f"⚠️ Failed to load data from the database: {e}")
