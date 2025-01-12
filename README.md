@@ -21,8 +21,14 @@ uv sync
 ```
 
 ## Usage
+### Initialize the DataBase
 ```bash
-streamlit run app.py
+python scripts/init_db.py
+```
+
+### Run the "Laboratory Data Processor" app
+```bash
+streamlit run src/app.py
 ```
 
 
