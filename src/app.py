@@ -1,41 +1,38 @@
-from src.calculators import CsvCalculator, ExcelCalculator
-from src.parsers import CsvParser, ExcelParser
-from src.database import Database
-from subprocess import call
-import streamlit as st
-import pandas as pd
-import uuid
 import os
+import uuid
+from subprocess import call
+
+import pandas as pd
+import streamlit as st
+
+from src.calculators import CsvCalculator, ExcelCalculator
+from src.database import Database
+from src.parsers import CsvParser, ExcelParser
 
 db = Database()
 
-parsers = {
-    "csv": CsvParser(),
-    "xlsx": ExcelParser(),
-}
+parsers = {"csv": CsvParser(), "xlsx": ExcelParser()}
 
-calculators = {
-    "csv": CsvCalculator(),
-    "xlsx": ExcelCalculator(),
-}
+calculators = {"csv": CsvCalculator(), "xlsx": ExcelCalculator()}
 
 
-def parse_and_calculate(file_path: str, uuid_str)-> pd.DataFrame:
-    file_extension = file_path.split('.')[-1]
+def parse_and_calculate(file_path: str, uuid_str) -> pd.DataFrame:
+    file_extension = file_path.split(".")[-1]
     if file_extension not in parsers:
         raise ValueError(f"Unsupported file type: {file_extension}")
-    
+
     parser = parsers[file_extension]
-    
+
     if not parser.can_parse(file_path):
         raise ValueError(f"Parser cannot handle file: {file_path}")
-    
+
     data = parser.parse(file_path)
     calculator = calculators[file_extension]
     st.write(data)
     result = calculator.calculate(data, uuid_str)
     df = pd.DataFrame([item.dict() for item in result])
     return df
+
 
 def statistics_value(numeric_cols, result):
     if not numeric_cols.empty:
@@ -51,7 +48,10 @@ def statistics_value(numeric_cols, result):
     valid_percentage = (valid_experiments / total_experiments) * 100
     invalid_percentage = (invalid_experiments / total_experiments) * 100
     st.write(f"✅ **Valid experiments**: {valid_experiments} ({valid_percentage:.2f}%)")
-    st.write(f"❌ **Invalid experiments**: {invalid_experiments} ({invalid_percentage:.2f}%)")
+    st.write(
+        f"❌ **Invalid experiments**: {invalid_experiments} ({invalid_percentage:.2f}%)"
+    )
+
 
 def main():
     st.set_page_config(page_title="Lab Results Analyzer", layout="wide")
@@ -104,7 +104,6 @@ def main():
             if os.path.exists(temp_path):
                 os.remove(temp_path)
 
-
         st.header("📂 View Stored Results")
 
         try:
@@ -114,7 +113,9 @@ def main():
                 st.info("🔍 The database is currently empty.")
             else:
                 experiment_types = data_df["experiment_type"].unique()
-                selected_type = st.selectbox("Select Experiment Type", ["All"] + list(experiment_types))
+                selected_type = st.selectbox(
+                    "Select Experiment Type", ["All"] + list(experiment_types)
+                )
 
                 if selected_type != "All":
                     data_df = data_df[data_df["experiment_type"] == selected_type]
@@ -129,6 +130,7 @@ def main():
 
         except Exception as e:
             st.error(f"⚠️ Failed to load data from the database: {e}")
+
 
 if __name__ == "__main__":
     main()
