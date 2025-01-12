@@ -58,20 +58,15 @@ if uploaded_file is not None:
 
         if isinstance(result, pd.DataFrame):
             st.success("✅ File processed successfully!")
-            if st.button("Show file results"):
-                st.dataframe(result)
+            st.dataframe(result)
 
             st.write("### 📈 File Statistics")
             numeric_cols = result.select_dtypes(include=["number"])
             statistics_value(numeric_cols, result)
 
-            # Save to database only if not already saved
-            if not st.session_state["data_saved"]:
-                db.store_results(result)
-                st.session_state["data_saved"] = True
-                st.success("📥 Results saved to the database.")
-            else:
-                st.info("📥 Results saved to the database.")
+            # Save the results for every uploaded file
+            db.store_results(result)
+            st.success("📥 Results saved to the database.")
 
         else:
             st.error("❌ Error: The processed result is not a valid DataFrame.")
@@ -82,6 +77,7 @@ if uploaded_file is not None:
     finally:
         if os.path.exists(temp_path):
             os.remove(temp_path)
+
 
     st.header("📂 View Stored Results")
 
