@@ -32,12 +32,10 @@ def parse_and_calculate(file_path: str, uuid_str)-> pd.DataFrame:
         raise ValueError(f"Parser cannot handle file: {file_path}")
     
     data = parser.parse(file_path)
-    st.write("---parser work---")
     calculator = calculators[file_extension]
     if st.button("Show file"):
         st.write(data)
     result = calculator.calculate(data, uuid_str)
-    st.write("---calculator work---")
     df = pd.DataFrame([item.dict() for item in result])
     return df
 
