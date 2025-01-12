@@ -6,11 +6,11 @@ from src.interface import ExpirementResult
 
 @pytest.fixture
 def csv_data():
-    return pd.read_csv("tests/samples/zeta_valid.csv")
+    return pd.read_csv("tests/resources/zeta_valid.csv")
 
 @pytest.fixture
 def excel_data():
-    return pd.read_excel("tests/samples/tns_valid.xlsx")
+    return pd.read_excel("tests/resources/tns_valid.xlsx")
 
 def test_csv_calculator_length(csv_data):
     calculator = CsvCalculator()
