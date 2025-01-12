@@ -33,8 +33,7 @@ def parse_and_calculate(file_path: str, uuid_str)-> pd.DataFrame:
     
     data = parser.parse(file_path)
     calculator = calculators[file_extension]
-    if st.button("Show file"):
-        st.write(data)
+    st.write(data)
     result = calculator.calculate(data, uuid_str)
     df = pd.DataFrame([item.dict() for item in result])
     return df

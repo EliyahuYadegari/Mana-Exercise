@@ -45,7 +45,6 @@ class Database:
 
         try:
             results_df.to_sql('data_table', conn, if_exists='append', index=False)
-            st.write("---Data successfully stored---")
         except Exception as e:
             st.error(f"An error occurred during SQL operation: {e}")
         finally:
