@@ -1,5 +1,5 @@
-from src.interface import ExpirementResult
 from src.database import Database
+from src.interface import ExpirementResult
 
 if __name__ == "__main__":
     db = Database()

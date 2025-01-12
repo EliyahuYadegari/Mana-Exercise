@@ -1,6 +1,8 @@
-from pydantic import BaseModel
 from typing import Union
 from uuid import UUID
+
+from pydantic import BaseModel
+
 
 class ExpirementResult(BaseModel):
     sample_name: str
