@@ -1,7 +1,6 @@
 import pandas as pd
-import pytest
 
-from src.parsers import CsvParser, ExcelParser
+from parsers import CsvParser, ExcelParser
 
 
 def test_csv_parser_can_parse():

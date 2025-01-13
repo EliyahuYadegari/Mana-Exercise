@@ -2,7 +2,7 @@ from typing import List
 
 import pandas as pd
 
-from src.interface import ExpirementResult
+from interface import ExpirementResult
 
 ZETA_VALIDATION = 0
 TNS_VALIDATION = 10

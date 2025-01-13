@@ -1,3 +1,4 @@
+import os
 import sqlite3
 
 import pandas as pd
@@ -6,9 +7,15 @@ from pydantic import BaseModel
 
 
 class Database:
-    def __init__(self, db_name="results.db"):
-        self.db_name = db_name
+    def __init__(self, db_name="./db/results.db"):
+        self.db_name = db_name or os.getenv("DB_PATH", "./db/results.db")        
 
+    def init_db_file(self):
+        os.makedirs(os.path.dirname(self.db_name), exist_ok=True)
+        conn = sqlite3.connect(self.db_name)
+        conn.close()
+
+    
     def create_table_from_pydantic(self, model: BaseModel):
         create_statement = "CREATE TABLE IF NOT EXISTS data_table ("
 
