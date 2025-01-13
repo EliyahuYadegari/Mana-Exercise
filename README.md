@@ -1,6 +1,6 @@
 # Laboratory Data Processor
 
-CLI utility for processing laboratory instrument data files for TNS and Zeta Potential experiments.
+Application for processing laboratory instrument data files for TNS and Zeta Potential experiments.
 
 ## Prerequisites
 - Python 3.8 or higher  
