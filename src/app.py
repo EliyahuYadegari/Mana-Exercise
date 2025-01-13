@@ -1,22 +1,17 @@
 import os
 import uuid
-from subprocess import call
 
 import pandas as pd
 import streamlit as st
 
-from src.calculators import CsvCalculator, ExcelCalculator
-from src.database import Database
-from src.parsers import CsvParser, ExcelParser
-
-db = Database()
-
-parsers = {"csv": CsvParser(), "xlsx": ExcelParser()}
-
-calculators = {"csv": CsvCalculator(), "xlsx": ExcelCalculator()}
+from calculators import CsvCalculator, ExcelCalculator
+from database import Database
+from parsers import CsvParser, ExcelParser
 
 
 def parse_and_calculate(file_path: str, uuid_str) -> pd.DataFrame:
+    parsers = {"csv": CsvParser(), "xlsx": ExcelParser()}
+    calculators = {"csv": CsvCalculator(), "xlsx": ExcelCalculator()}
     file_extension = file_path.split(".")[-1]
     if file_extension not in parsers:
         raise ValueError(f"Unsupported file type: {file_extension}")
@@ -28,50 +23,55 @@ def parse_and_calculate(file_path: str, uuid_str) -> pd.DataFrame:
 
     data = parser.parse(file_path)
     calculator = calculators[file_extension]
-    st.write(data)
     result = calculator.calculate(data, uuid_str)
-    df = pd.DataFrame([item.dict() for item in result])
+
+    df = pd.DataFrame([{**item.model_dump(), "experiment_id": str(item.experiment_id)} for item in result])
     return df
 
 
-def statistics_value(numeric_cols, result):
-    if not numeric_cols.empty:
-        st.write(f"- **Median**: \n{numeric_cols.median()}")
-        st.write(f"- **Average**: \n{numeric_cols.mean()}")
-        st.write(f"- **Standard Deviation**: \n{numeric_cols.std()}")
-    else:
-        st.warning("No numeric columns found for statistics computation.")
-    valid_experiments = result["result"].notna().sum()
-    total_experiments = len(result)
-    invalid_experiments = total_experiments - valid_experiments
+def display_statistics(numeric_cols, result):
+    col1, col2 = st.columns(2)
 
-    valid_percentage = (valid_experiments / total_experiments) * 100
-    invalid_percentage = (invalid_experiments / total_experiments) * 100
-    st.write(f"✅ **Valid experiments**: {valid_experiments} ({valid_percentage:.2f}%)")
-    st.write(
-        f"❌ **Invalid experiments**: {invalid_experiments} ({invalid_percentage:.2f}%)"
-    )
+    with col1:
+        st.write("#### 📊 Key Metrics")
+        if not numeric_cols.empty:
+            st.metric("Median", f"{numeric_cols.median()['result']:.2f}")
+            st.metric("Average", f"{numeric_cols.mean()['result']:.2f}")
+            st.metric("Standard Deviation", f"{numeric_cols.std()['result']:.2f}")
+        else:
+            st.warning("No numeric columns found for statistics computation.")
+
+    with col2:
+        st.write("#### 🎯 Experiment Status")
+        valid_experiments = result["result"].notna().sum()
+        total_experiments = len(result)
+        invalid_experiments = total_experiments - valid_experiments
+
+        valid_percentage = (valid_experiments / total_experiments) * 100
+        invalid_percentage = (invalid_experiments / total_experiments) * 100
+
+        st.metric(
+            "Valid Experiments", f"{valid_experiments}", f"{valid_percentage:.1f}%"
+        )
+        st.metric(
+            "Invalid Experiments",
+            f"{invalid_experiments}",
+            f"{invalid_percentage:.1f}%",
+        )
 
 
 def main():
     st.set_page_config(page_title="Lab Results Analyzer", layout="wide")
-    st.title("📊 Laboratory Results Management")
-    st.write(
-        """
-        Efficiently upload, process, and analyze laboratory results. 
-        View stored data and compute essential statistics with ease.
-        """
-    )
+    st.title("🔬 Laboratory Results Management")
 
-    st.header("📤 Upload New Experiment Results 🔬")
+    db = Database()
+
+    st.header("📤 Upload New Experiment Results")
     uploaded_file = st.file_uploader(
         "Choose a CSV or Excel file",
         type=["csv", "xlsx"],
         help="Upload experiment results from TNS or Zeta Potential experiments",
     )
-
-    if "data_saved" not in st.session_state:
-        st.session_state["data_saved"] = False
 
     if uploaded_file is not None:
         uuid_str = uuid.uuid4()
@@ -85,11 +85,13 @@ def main():
 
             if isinstance(result, pd.DataFrame):
                 st.success("✅ File processed successfully!")
-                st.dataframe(result)
 
-                st.write("### 📈 File Statistics")
+                st.subheader("📊 New Data Statistics")
                 numeric_cols = result.select_dtypes(include=["number"])
-                statistics_value(numeric_cols, result)
+                display_statistics(numeric_cols, result)
+
+                st.subheader("📋 Uploaded Data Preview")
+                st.dataframe(result)
 
                 db.store_results(result)
                 st.success("📥 Results saved to the database.")
@@ -103,33 +105,32 @@ def main():
         finally:
             if os.path.exists(temp_path):
                 os.remove(temp_path)
+    
+    try:
+        data_df = db.fetch_all_data()
+        if not data_df.empty:
+            st.header("📈 Overall Laboratory Statistics")
 
-        st.header("📂 View Stored Results")
+            experiment_types = data_df["experiment_type"].unique()
+            selected_type = st.selectbox(
+                "Select Experiment Type", ["All"] + list(experiment_types)
+            )
 
-        try:
-            data_df = db.fetch_all_data()
+            if selected_type != "All":
+                data_df = data_df[data_df["experiment_type"] == selected_type]
 
-            if data_df.empty:
-                st.info("🔍 The database is currently empty.")
-            else:
-                experiment_types = data_df["experiment_type"].unique()
-                selected_type = st.selectbox(
-                    "Select Experiment Type", ["All"] + list(experiment_types)
-                )
+            data_df["result"] = pd.to_numeric(data_df["result"], errors="coerce")
+            numeric_cols = data_df[["result"]].dropna()
+            display_statistics(numeric_cols, data_df)
 
-                if selected_type != "All":
-                    data_df = data_df[data_df["experiment_type"] == selected_type]
-
-                st.dataframe(data_df)
-
-                st.write("### 📈 Overall Statistics")
-                data_df["result"] = pd.to_numeric(data_df["result"], errors="coerce")
-                numeric_cols = data_df[["result"]].dropna()
-                numeric_cols.select_dtypes(include=["number"])
-                statistics_value(numeric_cols, data_df)
-
-        except Exception as e:
-            st.error(f"⚠️ Failed to load data from the database: {e}")
+            st.subheader("📋 Data Overview")
+            st.dataframe(data_df)
+        else:
+            st.info(
+                "📭 No data available yet. Upload your first experiment results below!"
+            )
+    except Exception as e:
+        st.error(f"⚠️ Failed to load data from the database: {e}")
 
 
 if __name__ == "__main__":
